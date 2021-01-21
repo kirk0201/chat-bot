@@ -43,5 +43,33 @@ router.post("/textquery", async (req, res) => {
   res.send(result);
 });
 
+router.post("/eventquery", async (req, res) => {
+  // 클라이언트에서 받은 정보를 dialogflow에 보냄
+  // dialogflow에 예제를 가져온다
+
+  // The text query request.
+  const request = {
+    session: sessionPath,
+    queryInput: {
+      // text가 아니라 event를 보내주기에 바꿔줌
+      event: {
+        // POSTMAN으로 테스트시 프로젝트의 루트디렉토리에서 환경변수 설정을 해줘야 credential에러가 안생김
+        // The query to send to the dialogflow agent
+        name: req.body.event,
+        // The language used by the client (en-US)
+        languageCode: languageCode,
+      },
+    },
+  };
+
+  // Send request and log result
+  const responses = await sessionClient.detectIntent(request);
+  console.log("Detected intent");
+  const result = responses[0].queryResult;
+  console.log(`  Query: ${result.queryText}`);
+  console.log(`  Response: ${result.fulfillmentText}`);
+
+  res.send(result);
+});
 // 이벤트 쿼리 라우트
 module.exports = router;
